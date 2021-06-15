@@ -290,7 +290,10 @@ class BaseModelMetaclass(pydantic.main.ModelMetaclass):
                     odm_fields[field_name] = ODMField(
                         primary_field=False, key_name=field_name, model_config=config
                     )
-
+                elif value is None:
+                    odm_fields[field_name] = ODMField(
+                        primary_field=False, key_name=field_name, model_config=config
+                    )
                 else:
                     try:
                         parse_obj_as(field_type, value)
@@ -479,6 +482,7 @@ class _BaseODMModel(pydantic.BaseModel, metaclass=ABCMeta):
     __slots__ = ("__fields_modified__",)
 
     def __init__(self, **data: Any):
+        self.__class__.update_forward_refs()
         super().__init__(**data)
         object.__setattr__(self, "__fields_modified__", set(self.__odm_fields__.keys()))
 
